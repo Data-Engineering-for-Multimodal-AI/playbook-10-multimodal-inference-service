@@ -1,0 +1,10 @@
+version: "1.0.0"
+vision: "resnet18"
+telemetry: "joints_v1"
+policy: "mlp_stub_v1"
+fusion: "concat"
+model_settings:
+  vision_embedding_dim: 512  # ResNet18 feature dimension
+  telemetry_dim: 7  # joint_positions dimension
+  hidden_dim: 256
+  output_dim: 7  # 7 DOF action vector
