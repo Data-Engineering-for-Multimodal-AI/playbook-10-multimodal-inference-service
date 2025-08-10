@@ -87,7 +87,6 @@ pids
 *.h5
 
 # Data
-rlbench-data/
 data/
 datasets/
 
