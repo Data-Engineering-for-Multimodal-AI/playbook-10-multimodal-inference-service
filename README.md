@@ -41,11 +41,14 @@ Joint Positions (7D) ──────────────→ Concat → ML
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/multimodal-inference-service.git
-cd multimodal-inference-service
+git clone https://github.com/Data-Engineering-for-Multimodal-AI/pb-10-mm-inference-service.git
+cd pb-10-mm-inference-service
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Set up sample data (see Data Setup section below)
+python download_sample_data.py
 ```
 
 ### Running the Service
@@ -104,7 +107,25 @@ FastAPI provides automatic interactive documentation:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
 
-## Data Format
+## Data Setup
+
+### Getting Sample Data
+
+Due to GitHub file size limits, the RLBench data is not included in this repository. You have several options:
+
+**Option 1: Use the download helper (Recommended)**
+```bash
+python download_sample_data.py
+```
+
+**Option 2: Manual setup**
+1. Download RLBench data from: https://github.com/stepjam/RLBench
+2. Place episodes in the `rlbench-data/` directory following the structure below
+
+**Option 3: Use your own data**
+Format your robot demonstration data to match the RLBench structure
+
+### Data Format
 
 The service expects RLBench-formatted data:
 
