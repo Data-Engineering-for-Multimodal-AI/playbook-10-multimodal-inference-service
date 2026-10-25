@@ -1,0 +1,18 @@
+# Candidate 1.1.0: the same inputs with a wider fusion head (the first edition's candidate)
+version: "1.1.0"
+vision: "resnet18"
+telemetry: "joints_v1"
+policy: "mlp_bc_v1"
+fusion: "concat"
+weights: "models/1.1.0.pt"
+model_settings:
+  vision_embedding_dim: 512
+  telemetry_dim: 7
+  hidden_dim: 512  # Increased hidden dim for candidate
+  output_dim: 7
+training:
+  task: "push_buttons"
+  train_episodes: "0-19"
+  test_episodes: "20-24"
+  epochs: 300
+  seed: 0
