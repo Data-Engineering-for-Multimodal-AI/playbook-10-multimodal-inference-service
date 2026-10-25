@@ -1,0 +1,36 @@
+[project]
+name = "playbook-10-multimodal-inference-service"
+version = "2026.10"
+description = "A versioned multimodal inference service (camera + robot telemetry -> joint actions) with canary rollouts, trained on RLBench demonstrations (Data Engineering for Multimodal AI, Chapter 10)"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.12"
+dependencies = [
+    "torch>=2.3",
+    "torchvision>=0.18",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "prometheus-client>=0.20",
+    "pyyaml>=6.0",
+    "pillow>=10.2",
+    "numpy>=1.26",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "httpx>=0.27"]
+
+[tool.uv]
+package = false
+
+# On Linux, PyPI's torch is the CUDA build. This service runs on CPU, so Linux gets the CPU build.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+torchvision = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
