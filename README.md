@@ -184,7 +184,10 @@ RLBench: S. James, Z. Ma, D. Rovick Arrojo and A. J. Davison, "RLBench: The Robo
 
 ## Expected output
 
-Recorded 2026-10-25 on macOS 26.5.1 (Apple M3), Python 3.12.15. On other machines the last digits can differ.
+Recorded 2026-10-25 on macOS 26.5.1 (Apple M3), Python 3.12.15. Other CPUs give slightly different numbers, because floating-point results differ in training. For example, on Ubuntu with Python 3.12 in CI (same day):
+
+- R²: 0.533 (1.0.0), 0.523 (1.1.0) and −0.592 (1.2.0).
+- Canary verdicts: the same; the no-camera rollback is at +24%.
 
 `python train.py`:
 
