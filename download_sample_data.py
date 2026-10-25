@@ -49,14 +49,20 @@ def expected_file(task: str) -> dict:
 def download(url: str, path: str, size: int) -> str:
     """Download with progress; returns the SHA-256."""
     digest = hashlib.sha256()
-    done = 0
+    done, shown = 0, -1
+    step = 1 if sys.stdout.isatty() else 10   # fewer lines in logs
     with urllib.request.urlopen(url, timeout=60) as response, open(path + ".part", "wb") as out:
         while chunk := response.read(1 << 20):
             out.write(chunk)
             digest.update(chunk)
             done += len(chunk)
-            print(f"\rDownloading: {done * 100 // size}% ({done / 1e6:.0f} of {size / 1e6:.0f} MB)", end="", flush=True)
-    print()
+            percent = done * 100 // size
+            if percent // step != shown:
+                shown = percent // step
+                print(f"\rDownloading: {percent}% ({done / 1e6:.0f} of {size / 1e6:.0f} MB)",
+                      end="" if sys.stdout.isatty() else "\n", flush=True)
+    if sys.stdout.isatty():
+        print()
     os.replace(path + ".part", path)
     return digest.hexdigest()
 

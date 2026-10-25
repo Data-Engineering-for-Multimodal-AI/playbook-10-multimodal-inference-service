@@ -52,7 +52,7 @@ python train.py
 This trains the three manifests: `manifest.yaml` (1.0.0), `manifest_candidate.yaml` (1.1.0) and `manifest_candidate_no_camera.yaml` (1.2.0).
 
 - It embeds about 2,500 camera frames once, cached in `.cache/`, then trains each fusion head.
-- It takes about 2 minutes on a laptop CPU and downloads ResNet-18 (45 MB).
+- It takes 2 to 3 minutes on a laptop CPU and downloads ResNet-18 (45 MB).
 - The weights go to `models/`.
 
 The service and the canary train any missing version themselves, so you can skip this step.
