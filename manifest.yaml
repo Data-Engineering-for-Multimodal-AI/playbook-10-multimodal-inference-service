@@ -1,10 +1,17 @@
 version: "1.0.0"
 vision: "resnet18"
 telemetry: "joints_v1"
-policy: "mlp_stub_v1"
+policy: "mlp_bc_v1"  # MLP fusion head trained by behaviour cloning (python train.py)
 fusion: "concat"
+weights: "models/1.0.0.pt"
 model_settings:
   vision_embedding_dim: 512  # ResNet18 feature dimension
   telemetry_dim: 7  # joint_positions dimension
   hidden_dim: 256
-  output_dim: 7  # 7 DOF action vector
+  output_dim: 7  # 7 DOF action vector: next joint deltas (radians)
+training:
+  task: "push_buttons"
+  train_episodes: "0-19"
+  test_episodes: "20-24"
+  epochs: 300
+  seed: 0

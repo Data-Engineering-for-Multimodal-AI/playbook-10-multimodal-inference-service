@@ -1,0 +1,10 @@
+.git
+.venv
+.cache
+.pytest_cache
+__pycache__
+rlbench-data
+models
+tests
+AUDIT.md
+canary_results.json

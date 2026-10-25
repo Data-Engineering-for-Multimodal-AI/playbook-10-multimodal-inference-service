@@ -1,0 +1,76 @@
+name: smoke
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    # Downloads the RLBench demonstrations, trains the three manifests on CPU, tests the service
+    # and replays the canary for both candidates
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    env:
+      UV_PYTHON: ${{ matrix.python-version }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+      - name: Cache the demonstrations and ResNet-18
+        uses: actions/cache@v6
+        with:
+          path: |
+            rlbench-data
+            ~/.cache/torch
+          key: rlbench-push_buttons-b4467890-resnet18
+      - name: Smoke test
+        run: make smoke
+      - name: Training scores and canary runs (shown in the README)
+        run: |
+          uv run python train.py
+          uv run python simulate_canary.py --max-samples 400 --canary-traffic 20
+          uv run python simulate_canary.py --candidate manifest_candidate_no_camera.yaml --max-samples 400 --canary-traffic 20
+      - name: Printed commands (pip install -r requirements.txt, uvicorn, curl, simulate_canary.py)
+        run: |
+          uv venv --seed --python ${{ matrix.python-version }} /tmp/pipenv
+          /tmp/pipenv/bin/python -m pip install -q -r requirements.txt
+          /tmp/pipenv/bin/python download_sample_data.py
+          /tmp/pipenv/bin/uvicorn service:app --host 0.0.0.0 --port 8000 &
+          for i in $(seq 1 120); do curl -sf http://localhost:8000/health && break; sleep 1; done
+          curl -sf -X POST "http://localhost:8000/infer" -H "Content-Type: application/json" \
+            -d '{"rgb_path": "rlbench-data/push_buttons/all_variations/episodes/episode21/front_rgb",
+                 "pkl_path": "rlbench-data/push_buttons/all_variations/episodes/episode21/low_dim_obs.pkl"}'
+          curl -sf http://localhost:8000/metrics | grep inference_requests_total
+          /tmp/pipenv/bin/python simulate_canary.py --max-samples 10 --canary-traffic 20.0
+
+  docker:
+    # The image serves the trained model with the data and weights mounted
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+      - name: Cache the demonstrations and ResNet-18
+        uses: actions/cache@v6
+        with:
+          path: |
+            rlbench-data
+            ~/.cache/torch
+          key: rlbench-push_buttons-b4467890-resnet18
+      - name: Train
+        run: make train
+      - name: Build and run
+        run: |
+          docker build -t multimodal-inference .
+          docker run -d --name inference -p 8000:8000 -v $PWD/rlbench-data:/app/rlbench-data:ro \
+            -v $PWD/models:/app/models:ro multimodal-inference
+          for i in $(seq 1 120); do curl -sf http://localhost:8000/health && break; sleep 1; done
+          curl -sf -X POST "http://localhost:8000/infer" -H "Content-Type: application/json" \
+            -d '{"rgb_path": "rlbench-data/push_buttons/all_variations/episodes/episode21/front_rgb/10.png",
+                 "pkl_path": "rlbench-data/push_buttons/all_variations/episodes/episode21/low_dim_obs.pkl"}'
+          test "$(docker inspect -f '{{.Config.User}}' multimodal-inference)" = inference
+      - name: Container logs
+        if: always()
+        run: docker logs inference || true

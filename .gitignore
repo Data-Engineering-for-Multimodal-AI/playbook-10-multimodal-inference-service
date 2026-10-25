@@ -104,9 +104,14 @@ tmp/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Docker
-.dockerignore
-
 # Application specific
 canary_results.json
 *.pkl
+# Downloaded demonstrations (python download_sample_data.py), trained weights (python train.py),
+# embedding and download cache
+rlbench-data/
+models/
+.cache/
+
+# Local audit notes
+AUDIT.md

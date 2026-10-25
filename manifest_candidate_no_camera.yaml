@@ -1,0 +1,18 @@
+# Candidate 1.2.0: drops the camera to save the ResNet-18 pass on every request.
+# Faster, but it can't see where the buttons are; the canary should catch that.
+version: "1.2.0"
+vision: "none"
+telemetry: "joints_v1"
+policy: "mlp_bc_v1"
+fusion: "none"
+weights: "models/1.2.0.pt"
+model_settings:
+  telemetry_dim: 7
+  hidden_dim: 256
+  output_dim: 7
+training:
+  task: "push_buttons"
+  train_episodes: "0-19"
+  test_episodes: "20-24"
+  epochs: 300
+  seed: 0
