@@ -5,15 +5,15 @@ Thank you for your interest in contributing to this project! This guide outlines
 ## Development Setup
 
 ### Prerequisites
-- Python 3.9+
-- Docker
+- Python 3.12+
+- Docker (optional)
 - Git
 
 ### Local Development
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/multimodal-inference-service.git
-   cd multimodal-inference-service
+   git clone https://github.com/Data-Engineering-for-Multimodal-AI/playbook-10-multimodal-inference-service.git
+   cd playbook-10-multimodal-inference-service
    ```
 
 2. Create a virtual environment:
@@ -27,9 +27,10 @@ Thank you for your interest in contributing to this project! This guide outlines
    pip install -r requirements.txt
    ```
 
-4. Run tests:
+4. Download the data and run the tests:
    ```bash
-   python -c "from model import MultimodalInferenceModel; model = MultimodalInferenceModel(); print('Model loads successfully')"
+   python download_sample_data.py
+   make smoke    # or: pytest -q
    ```
 
 ## Code Style
@@ -44,9 +45,9 @@ Thank you for your interest in contributing to this project! This guide outlines
 
 Before submitting a pull request:
 
-1. Test model loading:
+1. Run the smoke tests:
    ```bash
-   python -c "from model import MultimodalInferenceModel; MultimodalInferenceModel()"
+   make smoke
    ```
 
 2. Test service startup:
@@ -61,7 +62,7 @@ Before submitting a pull request:
 
 4. Run canary simulation:
    ```bash
-   python simulate_canary.py --max-samples 5
+   python simulate_canary.py --max-samples 400 --canary-traffic 20
    ```
 
 ## Contributing Guidelines
