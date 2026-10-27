@@ -128,7 +128,7 @@ The tests check:
 - every service endpoint, including rejected paths and files
 - both canary verdicts and the printed canary command
 
-CI runs them on Python 3.12 and 3.13. It also runs the printed `pip install -r requirements.txt`, `uvicorn` and `curl` commands, and builds and queries the Docker image.
+CI runs them on Python 3.12 and 3.13. It also runs the README's `pip install -r requirements.txt`, `uvicorn` and `curl` commands, and builds and queries the Docker image.
 
 ## Tested on
 
@@ -137,7 +137,7 @@ CI runs them on Python 3.12 and 3.13. It also runs the printed `pip install -r r
 
 ## Differences from the printed book
 
-The code as printed is tagged `first-edition`. What changed and why:
+The code as it was when the book was written is tagged `first-edition`. What changed and why:
 
 - **The model is trained.**
   - In the first edition, the fusion head kept its random starting weights: there was no training step, so actions were random numbers and changed every time the service restarted.
