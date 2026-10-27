@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026.10.1 (2026-10-27)
+
+Checked against the book (Early Release, pages 410–416).
+
+### Fixed
+- The book's `python service.py` and `docker run -p 8000:8000 multimodal-inference` (pages 414–415)
+  failed to start on a fresh clone: since 2026.10 the service trains when it has no weights, and
+  there was no data. It now starts with an untrained model and a warning, as the first edition did;
+  `/health` reports `"trained"`. CI runs the image without mounts.
+
+### Changed
+- The tests and CI run the canary command as printed (`--max-samples 5`).
+- README: page numbers; notes on the printed canary and Docker commands.
+
 ## 2026.10 (2026-10-25)
 
 Maintenance update. The code as printed in the book is tagged `first-edition`.
