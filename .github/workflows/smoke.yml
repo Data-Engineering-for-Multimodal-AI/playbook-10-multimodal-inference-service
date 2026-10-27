@@ -44,7 +44,7 @@ jobs:
             -d '{"rgb_path": "rlbench-data/push_buttons/all_variations/episodes/episode21/front_rgb",
                  "pkl_path": "rlbench-data/push_buttons/all_variations/episodes/episode21/low_dim_obs.pkl"}'
           curl -sf http://localhost:8000/metrics | grep inference_requests_total
-          /tmp/pipenv/bin/python simulate_canary.py --max-samples 10 --canary-traffic 20.0
+          /tmp/pipenv/bin/python simulate_canary.py --max-samples 5 --canary-traffic 20.0
 
   docker:
     # The image serves the trained model with the data and weights mounted
@@ -71,6 +71,10 @@ jobs:
             -d '{"rgb_path": "rlbench-data/push_buttons/all_variations/episodes/episode21/front_rgb/10.png",
                  "pkl_path": "rlbench-data/push_buttons/all_variations/episodes/episode21/low_dim_obs.pkl"}'
           test "$(docker inspect -f '{{.Config.User}}' multimodal-inference)" = inference
+          # The book's run without mounts (page 415): starts, with an untrained model
+          docker run -d --name printed -p 8001:8000 multimodal-inference
+          for i in $(seq 1 120); do curl -sf http://localhost:8001/health && break; sleep 1; done
+          curl -sf http://localhost:8001/health | grep -q '"trained":false'
       - name: Container logs
         if: always()
         run: docker logs inference || true

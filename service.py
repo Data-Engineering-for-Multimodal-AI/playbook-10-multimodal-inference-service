@@ -43,6 +43,7 @@ class InferenceResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     model_version: str
+    trained: bool
 
 
 # Global model manager
@@ -94,7 +95,8 @@ def health_check():
     """Health check endpoint."""
     if model_manager is None:
         raise HTTPException(status_code=503, detail="Model not initialized")
-    return HealthResponse(status="healthy", model_version=model_manager.get_version())
+    return HealthResponse(status="healthy", model_version=model_manager.get_version(),
+                          trained=model_manager.trained)
 
 
 @app.post("/infer", response_model=InferenceResponse)

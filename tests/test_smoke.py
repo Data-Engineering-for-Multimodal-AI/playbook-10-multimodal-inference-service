@@ -77,7 +77,7 @@ def test_service(trained):
     import service
 
     with TestClient(service.app) as client:
-        assert client.get("/health").json() == {"status": "healthy", "model_version": "1.0.0"}
+        assert client.get("/health").json() == {"status": "healthy", "model_version": "1.0.0", "trained": True}
         pkl = f"{EPISODE}/low_dim_obs.pkl"
         r = client.post("/infer", json={"rgb_path": f"{EPISODE}/front_rgb/10.png", "pkl_path": pkl})
         assert r.status_code == 200 and len(r.json()["action"]) == 7 and r.json()["step"] == 10
@@ -109,5 +109,22 @@ def test_canary_rolls_back_no_camera(trained):
 
 
 def test_printed_canary_command(trained):
-    out = run("simulate_canary.py", "--max-samples", "10", "--canary-traffic", "20.0")
+    out = run("simulate_canary.py", "--max-samples", "5", "--canary-traffic", "20.0")   # as printed, page 415
     assert "CANARY DEPLOYMENT SIMULATION RESULTS" in out
+
+
+def test_service_starts_without_data_or_weights(tmp_path, monkeypatch):
+    # The book runs `python service.py` (and the Docker image) before any data is downloaded
+    import yaml
+    import rlbench_data
+    from model import ModelManager
+
+    monkeypatch.setattr(rlbench_data, "DATA_ROOT", str(tmp_path / "no-data"))
+    monkeypatch.setattr(rlbench_data.episode_dirs, "__defaults__", (rlbench_data.DEFAULT_TASK, str(tmp_path / "no-data")))
+    with open(os.path.join(ROOT, "manifest.yaml")) as f:
+        config = yaml.safe_load(f)
+    config["weights"] = str(tmp_path / "missing.pt")
+    manifest = tmp_path / "manifest.yaml"
+    manifest.write_text(yaml.safe_dump(config))
+    manager = ModelManager(str(manifest))
+    assert manager.trained is False

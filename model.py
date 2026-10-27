@@ -121,15 +121,26 @@ class ModelManager:
 
         self.model = build_model(self.config)
         weights = weights_path(self.config)
+        self.trained = True
         if not os.path.exists(weights):
-            logger.info(f"No trained weights at {weights}; training them now (python train.py {manifest_path})")
-            from train import train_manifest
-            train_manifest(manifest_path)
-        # The weights file holds the trained head and its standardization; ResNet-18 comes from torchvision
-        missing, unexpected = self.model.load_state_dict(
-            torch.load(weights, map_location="cpu", weights_only=True), strict=False)
-        if unexpected or any(not k.startswith("vision_encoder.") for k in missing):
-            raise ValueError(f"{weights} doesn't match {manifest_path}: missing {missing}, unexpected {unexpected}")
+            from rlbench_data import episode_dirs
+            task = self.config.get("training", {}).get("task", "push_buttons")
+            if episode_dirs(task):
+                logger.info(f"No trained weights at {weights}; training them now (python train.py {manifest_path})")
+                from train import train_manifest
+                train_manifest(manifest_path)
+            else:
+                # As in the first edition, the service still starts (the book runs it, and the Docker
+                # image, before any data is downloaded); its actions mean nothing until it is trained
+                logger.warning(f"No trained weights at {weights} and no RLBench data: serving an UNTRAINED "
+                               "policy head. Run python download_sample_data.py, then python train.py")
+                self.trained = False
+        if self.trained:
+            # The weights file holds the trained head and its standardization; ResNet-18 comes from torchvision
+            missing, unexpected = self.model.load_state_dict(
+                torch.load(weights, map_location="cpu", weights_only=True), strict=False)
+            if unexpected or any(not k.startswith("vision_encoder.") for k in missing):
+                raise ValueError(f"{weights} doesn't match {manifest_path}: missing {missing}, unexpected {unexpected}")
         self.model.eval()
 
         logger.info(f"Loaded model with manifest version {self.config['version']} from {weights}")
