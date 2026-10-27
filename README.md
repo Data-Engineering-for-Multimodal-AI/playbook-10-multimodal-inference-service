@@ -1,6 +1,6 @@
 # Multimodal Inference Service
 
-**Chapter 10 playbook** from *Data Engineering for Multimodal AI* (O'Reilly, 2026). Page numbers to be confirmed.
+**Chapter 10 playbook** from *Data Engineering for Multimodal AI* (O'Reilly, 2026), pages 410–416 (Early Release page numbers; they may differ in the final print).
 Book: https://oreil.ly/data-engineering-multimodal
 
 > Want the code exactly as printed? Use the `first-edition` tag. This branch is the 2026 maintenance update; see [Differences from the printed book](#differences-from-the-printed-book).
@@ -101,7 +101,7 @@ The canary replays requests from the 5 held-out demonstrations and sends a share
 
 If none of these happen, and at least 10 requests went to the candidate, it can be promoted.
 
-Every check has a command-line option (`--help`). The printed `python simulate_canary.py --max-samples 10 --canary-traffic 20.0` still runs. It sends only one or two requests to the candidate, so it reports that there isn't enough traffic to decide.
+Every check has a command-line option (`--help`). The book's `python simulate_canary.py --max-samples 5 --canary-traffic 20.0` (page 415) still runs. It sends one request to the candidate, so it reports that there isn't enough traffic to decide; the book shows a PROMOTE verdict in a different report format.
 
 ### 4. Docker
 
@@ -112,6 +112,7 @@ docker run -p 8000:8000 -v $(pwd)/rlbench-data:/app/rlbench-data:ro -v $(pwd)/mo
 
 - The image is Python 3.12 with CPU-only PyTorch (1.5 GB); ResNet-18's weights are inside it.
 - The demonstrations and trained weights are mounted, so train first.
+- The book's `docker run -p 8000:8000 multimodal-inference` (page 415), without mounts, also starts, as in the first edition, but with an untrained model: `/health` says `"trained": false`. Without the data, `/infer` has nothing to read.
 - The container runs as the non-root user `inference` and has a health check.
 
 ### Tests
@@ -160,6 +161,7 @@ The code as printed is tagged `first-edition`. What changed and why:
   - `/metrics` sends the Prometheus text content type (it sent the OpenMetrics type with text content).
   - Inference runs in FastAPI's thread pool.
   - Docker: Python 3.9 reached end of life in October 2025. The image is now Python 3.12 with CPU-only PyTorch, with the weights baked in.
+- **Starting without data.** As in the first edition, `python service.py` and the Docker image start before any data is downloaded, with an untrained model and a warning; `/health` now reports `"trained"`. With the data and no weights, the service trains first.
 - **Data.** `download_sample_data.py` now downloads and verifies the demonstrations; it used to create an empty folder.
 - **The curl example.** It now uses `episode21`. The first edition's `episode39` isn't in the 25-episode sample; it is in the 100-episode `train` split of the same dataset.
 - **Manifests.**
@@ -184,7 +186,7 @@ RLBench: S. James, Z. Ma, D. Rovick Arrojo and A. J. Davison, "RLBench: The Robo
 
 ## Expected output
 
-Recorded 2026-10-25 on macOS 26.5.1 (Apple M3), Python 3.12.15. Other CPUs give slightly different numbers, because floating-point results differ in training. For example, on Ubuntu with Python 3.12 in CI (same day):
+Recorded 2026-10-25 on macOS 26.5.1 (Apple M3), Python 3.12.15. This is the output of this version; it may differ from the output printed in the book, and that's okay. Other CPUs give slightly different numbers, because floating-point results differ in training. For example, on Ubuntu with Python 3.12 in CI (same day):
 
 - R²: 0.533 (1.0.0), 0.523 (1.1.0) and −0.592 (1.2.0).
 - Canary verdicts: the same; the no-camera rollback is at +24%.
