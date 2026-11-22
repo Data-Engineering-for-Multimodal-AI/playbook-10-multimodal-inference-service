@@ -1,6 +1,6 @@
 # Multimodal Inference Service
 
-**Chapter 10 playbook** from *Data Engineering for Multimodal AI* (O'Reilly, 2026), pages 410–416 (Early Release page numbers; they may differ in the final print).
+**Chapter 10 playbook** from *Data Engineering for Multimodal AI* (O'Reilly, 2026), pages 407–413.
 Book: https://oreil.ly/data-engineering-multimodal
 
 > Want the code exactly as printed? Use the `first-edition` tag. This branch is the 2026 maintenance update; see [Differences from the printed book](#differences-from-the-printed-book).
@@ -101,7 +101,7 @@ The canary replays requests from the 5 held-out demonstrations and sends a share
 
 If none of these happen, and at least 10 requests went to the candidate, it can be promoted.
 
-Every check has a command-line option (`--help`). The book's `python simulate_canary.py --max-samples 5 --canary-traffic 20.0` (page 415) still runs. It sends one request to the candidate, so it reports that there isn't enough traffic to decide; the book shows a PROMOTE verdict in a different report format.
+Every check has a command-line option (`--help`). The book's `python simulate_canary.py --max-samples 5 --canary-traffic 20.0` (page 411) still runs. It sends one request to the candidate, so it reports that there isn't enough traffic to decide; the book shows a PROMOTE verdict in a different report format.
 
 ### 4. Docker
 
@@ -112,7 +112,7 @@ docker run -p 8000:8000 -v $(pwd)/rlbench-data:/app/rlbench-data:ro -v $(pwd)/mo
 
 - The image is Python 3.12 with CPU-only PyTorch (1.5 GB); ResNet-18's weights are inside it.
 - The demonstrations and trained weights are mounted, so train first.
-- The book's `docker run -p 8000:8000 multimodal-inference` (page 415), without mounts, also starts, as in the first edition, but with an untrained model: `/health` says `"trained": false`. Without the data, `/infer` has nothing to read.
+- The book's `docker run -p 8000:8000 multimodal-inference` (page 412), without mounts, also starts, as in the first edition, but with an untrained model: `/health` says `"trained": false`. Without the data, `/infer` has nothing to read.
 - The container runs as the non-root user `inference` and has a health check.
 
 ### Tests

@@ -13,6 +13,9 @@ Nothing the book shows has changed.
 - CI: a weekly scheduled run, a `make run` step, and a job that builds the devcontainer and runs
   `make run` inside it.
 
+### Changed
+- Book page numbers now match the printed book (they were Early Release page numbers).
+
 ## 2026.10.1 (2026-10-27)
 
 Checked against the book (Early Release, pages 410–416).
