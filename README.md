@@ -22,7 +22,7 @@ git clone https://github.com/Data-Engineering-for-Multimodal-AI/playbook-10-mult
 cd playbook-10-multimodal-inference-service
 ```
 
-**2. Download the data, train the three versions and replay a short canary.** Installs the locked dependencies, downloads the 25 RLBench `push_buttons` demonstrations (`python download_sample_data.py`, 349 MB, 78 MB kept), trains the three manifests (`python train.py`) and runs the book's short canary (`python simulate_canary.py --max-samples 5 --canary-traffic 20.0`). On a fresh clone this took 10 min 34 s on the Mac, including the download.
+**2. Download the data, train the three versions and replay a short canary.** Installs the locked dependencies, downloads the 25 RLBench `push_buttons` demonstrations (`python download_sample_data.py`, 349 MB, 78 MB kept), trains the three manifests (`python train.py`) and runs the book's short canary (`python simulate_canary.py --max-samples 5 --canary-traffic 20.0`). On a fresh clone this took 10 min 34 s on the Mac, including the download. In CI, with the data cached, it took 36 s.
 
 ```bash
 make run
@@ -135,7 +135,7 @@ canary share decisions                     requests to decide  served by candida
 rollback reasons: {'Action divergence too high': 5, 'Worse actions': 35}
 ```
 
-The bad candidate was always caught after 10 of its own requests; a bigger share only reached those 10 sooner (20 requests at 50%, 188 at 5%). The good candidate, 2% worse than the baseline over all test frames, was rolled back in 6 of 40 runs: the canary checks its error after every request from the 10th on, and on so few requests the noise alone can cross the 10% tolerance. Raise `--min-samples` or `--quality-tolerance` and run it again.
+The bad candidate was always caught after 10 of its own requests; a bigger share only reached those 10 sooner (20 requests at 50%, 188 at 5%). The good candidate, 2% worse than the baseline over all test frames, was rolled back in 6 of 40 runs: the canary checks its error after every request from the 10th on, and on so few requests the noise alone can cross the 10% tolerance. In CI (Ubuntu, where training gives slightly different weights), it was rolled back in 11 of 40 runs. Raise `--min-samples` or `--quality-tolerance` and run it again.
 
 **2. Does the service notice when the camera changes?** Darkens and blurs the held-out frames, as a dimmer room or a dirty lens would, and measures version 1.0.0's error and a drift score that needs no labels: how far the frames' ResNet-18 embeddings are from the training frames' (1.0 is as far as a typical training frame).
 
@@ -168,7 +168,7 @@ version                     read telemetry  open frame  ResNet-18  fusion head  
 Each request reads the whole low_dim_obs.pkl (295 KB, every frame of the episode) to use one row of it.
 ```
 
-ResNet-18 takes most of 1.0.0's time. Without it, 1.2.0 spends most of its time unpickling the whole episode's telemetry for one row of 7 numbers, and the model itself takes 0.4 ms. Keeping the telemetry in memory would remove about 12 of 1.2.0's 14 ms, and 8 of 1.0.0's 78 ms.
+ResNet-18 takes most of 1.0.0's time. Without it, 1.2.0 spends most of its time unpickling the whole episode's telemetry for one row of 7 numbers, and the model itself takes 0.4 ms. Keeping the telemetry in memory would remove about 12 of 1.2.0's 14 ms, and 8 of 1.0.0's 78 ms. In CI the parts were faster and the shares similar: reading the telemetry took 3.72 of 1.2.0's 3.92 ms.
 
 ## Use your own data
 
@@ -254,7 +254,7 @@ This playbook runs on one machine with 25 public demonstrations. Before you run 
 | Where you run it | Cost |
 |---|---|
 | Your machine | $0. Everything runs locally: no API keys, no paid services. About 0.8 GB of disk on a Mac: 690 MB for the environment, 78 MB of demonstrations, and a few MB of weights and cached embeddings. The Docker image adds 1.5 GB. |
-| A GitHub Codespace (2 cores, 8 GB, the default size; this repo asks for none) | Estimated $0.18 per hour at GitHub's list price (November 2026). A free personal account includes 120 core-hours a month, about 60 hours on this machine. |
+| A GitHub Codespace (2 cores, 8 GB, the default size; this repo asks for none) | Estimated $0.18 per hour at GitHub's list price (November 2026). A free personal account includes 120 core-hours a month, about 60 hours on this machine. In CI, `make run` in a clean devcontainer (the data was downloaded while the container was created) took 129 s; the whole job took about 3 minutes. |
 
 ## How it works
 
