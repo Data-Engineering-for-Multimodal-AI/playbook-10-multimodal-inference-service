@@ -4,6 +4,8 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"   # weekly, Monday 06:00 UTC, so breakage in upstream packages shows up
 
 jobs:
   smoke:
@@ -28,6 +30,8 @@ jobs:
           key: rlbench-push_buttons-b4467890-resnet18
       - name: Smoke test
         run: make smoke
+      - name: One-command run
+        run: make run
       - name: Training scores and canary runs (shown in the README)
         run: |
           uv run python train.py
@@ -78,3 +82,14 @@ jobs:
       - name: Container logs
         if: always()
         run: docker logs inference || true
+
+  devcontainer:
+    # Builds .devcontainer/ the way Codespaces does and runs the playbook inside it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the devcontainer and run the playbook
+        uses: devcontainers/ci@v0.3
+        with:
+          push: never
+          runCmd: make run

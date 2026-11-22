@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased (v1.1.0)
+
+Nothing the book shows has changed.
+
+### Added
+- `make setup` and `make run`. `make setup` installs the locked dependencies and downloads the
+  RLBench demonstrations. `make run` trains the three manifests on CPU and replays a short canary
+  (`simulate_canary.py --max-samples 5 --canary-traffic 20.0`), then exits. `make serve`,
+  `make smoke`, `make clean` and the other existing targets are unchanged.
+- `.devcontainer/` so the repo opens in GitHub Codespaces with dependencies and data installed.
+- CI: a weekly scheduled run, a `make run` step, and a job that builds the devcontainer and runs
+  `make run` inside it.
+
 ## 2026.10.1 (2026-10-27)
 
 Checked against the book (Early Release, pages 410–416).
