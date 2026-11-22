@@ -1,7 +1,11 @@
-# Multimodal Inference Service
+# Playbook 10: Serve a robot model with canary rollout and rollback
+**How to build and operate a multimodal inference service.** Chapter 10 of [*Data Engineering for Multimodal AI*](https://oreil.ly/data-engineering-multimodal) (O'Reilly, 2026), pages 407–413.
 
-**Chapter 10 playbook** from *Data Engineering for Multimodal AI* (O'Reilly, 2026), pages 407–413.
-Book: https://oreil.ly/data-engineering-multimodal
+A robot's model can't be swapped blindly: a new version has to roll out to a few robots first and roll back if it gets worse. In this repo, we explore this with Eighteen Labs, a fictional robotics company, and a small RLBench robot policy. Follow along to wrap the model in a service with extra inputs (text, sound, telemetry), canary rollout, rollback, telemetry and drift checks.
+
+**The problem.** Updating a model in a live system can break it, so every change has to be shipped in a way you can watch and undo.
+
+**What you'll work with.** You'll package the model in a container with a deployment manifest, send a share of traffic to the new version, roll back when it gets worse, and watch telemetry and drift.
 
 > Want the code exactly as printed? Use the `first-edition` tag. This branch is the 2026 maintenance update; see [Differences from the printed book](#differences-from-the-printed-book).
 
