@@ -4,6 +4,8 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"   # weekly, Monday 06:00 UTC, so breakage in upstream packages shows up
 
 jobs:
   smoke:
@@ -28,6 +30,34 @@ jobs:
           key: rlbench-push_buttons-b4467890-resnet18
       - name: Smoke test
         run: make smoke
+      - name: One-command run
+        run: make run | tee /tmp/run.txt
+      # README "Run it", steps 2-4: the key output lines, make serve with make infer, and both canaries
+      - name: Run it, steps 2-4
+        run: |
+          grep -q "1.2.0     joint positions" /tmp/run.txt
+          grep -q "Not enough candidate traffic to decide" /tmp/run.txt
+          make serve > /tmp/serve.log 2>&1 &
+          for i in $(seq 1 300); do curl -sf http://localhost:8000/health > /dev/null && break; sleep 1; done
+          make infer | tee /tmp/infer.txt
+          grep -q '"model_version":"1.0.0","step":10' /tmp/infer.txt
+          make infer EPISODE=22 FRAME=40 | grep -q '"step":40'
+          curl -s localhost:8000/metrics | grep -q "^inference_requests_total 2.0"
+          pkill -f "uvicorn service:app" || true
+          make canary | tee /tmp/c1.txt
+          grep -q "Canary deployment SUCCESSFUL" /tmp/c1.txt
+          make canary-no-camera | tee /tmp/c2.txt
+          grep -q "ROLLBACK TRIGGERED: Worse actions" /tmp/c2.txt
+      - name: Use your own data (file checks)
+        run: uv run --frozen pytest -q tests/test_own_data.py
+      - name: Try this 1-3
+        run: |
+          make try-canary-traffic | tee /tmp/t1.txt
+          grep -q "50% 10 rollback" /tmp/t1.txt
+          make try-camera-drift | tee /tmp/t2.txt
+          grep -q "blurred (radius 4)" /tmp/t2.txt
+          make try-latency-breakdown | tee /tmp/t3.txt
+          grep -q "1.2.0 (joints only)" /tmp/t3.txt
       - name: Training scores and canary runs (shown in the README)
         run: |
           uv run python train.py
@@ -71,10 +101,22 @@ jobs:
             -d '{"rgb_path": "rlbench-data/push_buttons/all_variations/episodes/episode21/front_rgb/10.png",
                  "pkl_path": "rlbench-data/push_buttons/all_variations/episodes/episode21/low_dim_obs.pkl"}'
           test "$(docker inspect -f '{{.Config.User}}' multimodal-inference)" = inference
-          # The book's run without mounts (page 415): starts, with an untrained model
+          # The book's run without mounts (page 412): starts, with an untrained model
           docker run -d --name printed -p 8001:8000 multimodal-inference
           for i in $(seq 1 120); do curl -sf http://localhost:8001/health && break; sleep 1; done
           curl -sf http://localhost:8001/health | grep -q '"trained":false'
       - name: Container logs
         if: always()
         run: docker logs inference || true
+
+  devcontainer:
+    # Builds .devcontainer/ the way Codespaces does and runs the playbook inside it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the devcontainer and run the playbook
+        uses: devcontainers/ci@v0.3
+        with:
+          push: never
+          # make run (data already downloaded while the container was created), timed from a clean container
+          runCmd: start=$(date +%s) && make run && echo "Time to first output in a clean devcontainer was $(( $(date +%s) - start )) s"

@@ -1,5 +1,34 @@
 # Changelog
 
+## Unreleased (v1.1.0)
+
+Nothing the book shows has changed.
+
+### Added
+- `make infer [EPISODE=..] [FRAME=..]`: the book's curl request to the running service.
+- `make check-data DIR=...` and `make evaluate DIR=...`: check a folder of your own demonstrations
+  in the RLBench layout (frames, telemetry pickles through the safe loader, LFS pointers, counts)
+  and score the three versions on them (`scripts/own_episodes.py`, `tests/test_own_data.py`).
+- Three measured experiments: `make try-canary-traffic`, `make try-camera-drift`,
+  `make try-latency-breakdown` (`experiments/`). None needs the server or Docker.
+- README: numbered Run it steps, time tiers, Try this, Use your own data, What you end up with,
+  Before production, What it costs.
+- CI: the Run it steps (serve, infer, both canaries), Try this 1-3, the own-data checks, and the
+  time to first output in a clean devcontainer.
+- `make setup` and `make run`. `make setup` installs the locked dependencies and downloads the
+  RLBench demonstrations. `make run` trains the three manifests on CPU and replays a short canary
+  (`simulate_canary.py --max-samples 5 --canary-traffic 20.0`), then exits. `make serve`,
+  `make smoke`, `make clean` and the other existing targets are unchanged.
+- `.devcontainer/` so the repo opens in GitHub Codespaces with dependencies and data installed.
+- CI: a weekly scheduled run, a `make run` step, and a job that builds the devcontainer and runs
+  `make run` inside it.
+
+### Changed
+- README: "What you'll build" is now "How it works", and "Quick start" is now "Run it the way the
+  book does", with the same commands.
+- README opening: a title that says what you'll do, three sentences on why, the example and what you'll do, then the data engineering problem and what you'll work with.
+- Book page numbers now match the printed book (they were Early Release page numbers).
+
 ## 2026.10.1 (2026-10-27)
 
 Checked against the book (Early Release, pages 410–416).

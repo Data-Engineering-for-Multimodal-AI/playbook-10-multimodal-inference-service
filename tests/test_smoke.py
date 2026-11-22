@@ -109,7 +109,7 @@ def test_canary_rolls_back_no_camera(trained):
 
 
 def test_printed_canary_command(trained):
-    out = run("simulate_canary.py", "--max-samples", "5", "--canary-traffic", "20.0")   # as printed, page 415
+    out = run("simulate_canary.py", "--max-samples", "5", "--canary-traffic", "20.0")   # as printed, page 411
     assert "CANARY DEPLOYMENT SIMULATION RESULTS" in out
 
 
