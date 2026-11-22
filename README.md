@@ -506,6 +506,8 @@ Final Metrics:
 
 Dropping the camera makes requests 5 times faster, and a latency check alone would pass it. The rollback comes after 10 candidate requests, because its actions are 29% further from the expert's.
 
+If this playbook helped you, a star helps other readers find it.
+
 ## License
 
 MIT; see [LICENSE](LICENSE). The data has its own licenses (above).
