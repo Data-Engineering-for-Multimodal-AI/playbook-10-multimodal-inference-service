@@ -1,5 +1,8 @@
 .PHONY: setup run smoke data train serve canary canary-no-camera docker-build docker-run clean
 
+# A bare `make` runs the smoke test, as it did before the uniform targets were added.
+.DEFAULT_GOAL := smoke
+
 # Uniform targets for The Playbooks: setup, run, serve, smoke and clean. The book's commands
 # (pip install -r requirements.txt, python download_sample_data.py, python train.py,
 # uvicorn service:app ..., python simulate_canary.py --max-samples 5 --canary-traffic 20.0,
