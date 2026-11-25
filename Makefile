@@ -18,6 +18,7 @@ setup:
 run: setup
 	uv run --frozen python train.py
 	uv run --frozen python simulate_canary.py --max-samples 5 --canary-traffic 20.0
+	@echo "playbook-10-multimodal-inference-service" > .playbook-done
 
 # Smoke tests on CPU (downloads the data and trains the models the first time)
 smoke:

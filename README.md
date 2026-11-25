@@ -438,6 +438,8 @@ The script keeps only the files the service reads; the other cameras, depth maps
 
 RLBench: S. James, Z. Ma, D. Rovick Arrojo and A. J. Davison, "RLBench: The Robot Learning Benchmark & Learning Environment", *IEEE Robotics and Automation Letters*, 2020.
 
+The full list, with sources, licenses and citations, is in [DATA_LICENSES.md](DATA_LICENSES.md).
+
 ## Expected output
 
 Recorded 2026-10-25 on macOS 26.5.1 (Apple M3), Python 3.12.15. This is the output of this version; it may differ from the output printed in the book, and that's okay. Other CPUs give slightly different numbers, because floating-point results differ in training. For example, on Ubuntu with Python 3.12 in CI (same day):
