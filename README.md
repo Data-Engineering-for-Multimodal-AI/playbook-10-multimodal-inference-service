@@ -1,5 +1,15 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/header-dark.png">
+  <img src="docs/img/header-light.png" alt="Playbook 10 of 12, Chapter 10 of Data Engineering for Multimodal AI. Build: an inference service with canary rollout. Data: robot camera, text, sound and telemetry." width="100%">
+</picture>
+
 # Playbook 10: Serve a robot model with canary rollout and rollback
 **How to build and operate a multimodal inference service.** Chapter 10 of [*Data Engineering for Multimodal AI*](https://oreil.ly/data-engineering-multimodal) (O'Reilly, 2026), pages 407–413.
+
+[![Tests](https://github.com/Data-Engineering-for-Multimodal-AI/playbook-10-multimodal-inference-service/actions/workflows/smoke.yml/badge.svg?branch=main)](https://github.com/Data-Engineering-for-Multimodal-AI/playbook-10-multimodal-inference-service/actions/workflows/smoke.yml)
+![Python 3.12 | 3.13](https://img.shields.io/badge/python-3.12%20%7C%203.13-1f1a19?labelColor=6b6361)
+[![License: MIT](https://img.shields.io/badge/license-MIT-1f1a19?labelColor=6b6361)](LICENSE)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-Codespaces-b4422e?logo=github&labelColor=6b6361)](https://codespaces.new/Data-Engineering-for-Multimodal-AI/playbook-10-multimodal-inference-service?quickstart=1)
 
 A robot's model can't be swapped blindly: a new version has to roll out to a few robots first and roll back if it gets worse. In this repo, we explore this with Eighteen Labs, a fictional robotics company, and a small RLBench robot policy. Follow along to wrap the model in a service with extra inputs (text, sound, telemetry), canary rollout, rollback, telemetry and drift checks.
 
@@ -258,6 +268,18 @@ This playbook runs on one machine with 25 public demonstrations. Before you run 
 
 ## How it works
 
+```mermaid
+flowchart LR
+  A["RLBench demos<br/>front camera and joints"] --> B["Training<br/>ResNet-18 and fusion MLP"]
+  B --> C["Versioned manifests<br/>1.0.0, 1.1.0, 1.2.0"]
+  C --> D["FastAPI service<br/>/infer and /health"]
+  D --> E["Prometheus metrics<br/>requests, errors, latency"]
+  C --> F["Canary replay<br/>candidate vs baseline in shadow"]
+  F --> G["Verdict<br/>promote or roll back"]
+  classDef key fill:#ffe8e3,stroke:#b4422e,color:#1f1a19
+  class F key
+```
+
 The model combines what the front camera sees and where the seven joints are.
 
 - **A multimodal model trained on real demonstrations**:
@@ -438,7 +460,7 @@ The script keeps only the files the service reads; the other cameras, depth maps
 
 RLBench: S. James, Z. Ma, D. Rovick Arrojo and A. J. Davison, "RLBench: The Robot Learning Benchmark & Learning Environment", *IEEE Robotics and Automation Letters*, 2020.
 
-The full list, with sources, licenses and citations, is in [DATA_LICENSES.md](DATA_LICENSES.md).
+The full list, with sources, licenses and citations, is in [DATA_SOURCES.md](DATA_SOURCES.md).
 
 ## Expected output
 
@@ -510,6 +532,19 @@ Dropping the camera makes requests 5 times faster, and a latency check alone wou
 
 If this playbook helped you, a star helps other readers find it.
 
+## Troubleshooting
+
+**`make infer` prints "No answer from http://localhost:8000: start it with make serve".** Start `make serve` in a second terminal and leave it running. It trains any missing version before the API answers, so wait for it to start before you send a request.
+
+**`/infer` returns 400 "Path outside the data folder".** The service only reads files inside `rlbench-data/`, or the folder `RLBENCH_DATA` points to. Send paths relative to the repository folder, as `make infer` does.
+
+**The Docker container's `/health` says `"trained": false`.** It was started without the trained weights and the data. Build the image with `make docker-build`, then start it with `make docker-run`, which trains first and mounts `models/` and `rlbench-data/` read-only.
+
 ## License
 
 MIT; see [LICENSE](LICENSE). The data has its own licenses (above).
+
+---
+
+[The book](https://oreil.ly/data-engineering-multimodal) · [All playbooks](https://github.com/Data-Engineering-for-Multimodal-AI#playbooks) · Previous: [Playbook 09](https://github.com/Data-Engineering-for-Multimodal-AI/playbook-09-multimodal-scaling-benchmarks) · Next: [Playbook 11](https://github.com/Data-Engineering-for-Multimodal-AI/playbook-11-multimodal-governance-pipeline)
+<!-- Substack post for this playbook: add link here -->
